@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDM Inbound Dashboard — 2026</title>
+<style>
+/* ── PDM Brand Tokens ── */
+:root {
+  --pdm-bg:         #F5F4F2;
+  --pdm-dark:       #2C2B2B;
+  --pdm-purple:     #7265E3;
+  --pdm-purple-mid: #A99DF0;
+  --pdm-purple-lt:  #EDE9FA;
+  --pdm-green:      #16A34A;
+  --pdm-red:        #DC2626;
+  --pdm-amber:      #D97706;
+  --pdm-white:      #FFFFFF;
+  --pdm-border:     #D9D7D2;
+  --pdm-text:       #1A1A1A;
+  --pdm-muted:      #6B6B6B;
+  --pdm-row-alt:    #EEECF8;
+  --pdm-card-bg:    #FFFFFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  background: var(--pdm-bg);
+  color: var(--pdm-text);
+  font-size: 13px;
+  line-height: 1.45;
+  min-height: 100vh;
+}
+
+/* ── Header Bar ── */
+.pdm-header {
+  background: var(--pdm-dark);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.pdm-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdm-logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--pdm-purple);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pdm-logo-mark svg { width: 18px; height: 18px; fill: white; }
+.pdm-logo-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdm-white);
+}
+.pdm-logo-sub {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--pdm-purple-mid);
+  margin-top: 1px;
+}
+.pdm-header-right {
+  font-size: 11px;
+  color: var(--pdm-purple-mid);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Layout ── */
+.main-wrap { max-width: 1340px; margin: 0 auto; padding: 24px 28px 48px; }
+
+/* ── Controls Bar ── */
+.controls {
+  background: var(--pdm-card-bg);
+  border: 1px solid var(--pdm-border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+.ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+.ctrl-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdm-muted);
+}
+select {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--pdm-border);
+  border-radius: 4px;
+  background: var(--pdm-bg);
+  color: var(--pdm-text);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  padding-right: 28px;
+  min-width: 130px;
+}
+select:focus { border-color: var(--pdm-purple); }
+
+.src-btns { display: flex; gap: 0; }
+.src-btn {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 6px 14px;
+  border: 1px solid var(--pdm-border);
+  background: var(--pdm-bg);
+  color: var(--pdm-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: none;
+}
+.src-btn:first-child { border-radius: 4px 0 0 4px; }
+.src-btn:last-child  { border-radius: 0 4px 4px 0; border-right: 1px solid var(--pdm-border); }
+.src-btn.active {
+  background: var(--pdm-purple);
+  border-color: var(--pdm-purple);
+  color: #fff;
+}
+.src-btn:not(.active):hover { background: var(--pdm-purple-lt); border-color: var(--pdm-purple-mid); color: var(--pdm-purple); }
+
+/* ── Section Title ── */
+.section-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdm-muted);
+  margin: 20px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--pdm-border);
+}
+
+/* ── KPI Summary Strip ── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.kpi-box {
+  background: var(--pdm-dark);
+  border-radius: 5px;
+  padding: 12px 14px;
+}
+.kpi-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdm-purple-mid);
+  margin-bottom: 5px;
+}
+.kpi-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.kpi-sub {
+  font-size: 10px;
+  color: #888;
+}
+.kpi-bar-wrap {
+  height: 3px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.kpi-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.kpi-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-top: 4px;
+}
+.badge-green  { background: #dcfce7; color: #14532d; }
+.badge-amber  { background: #fef3c7; color: #78350f; }
+.badge-red    { background: #fee2e2; color: #7f1d1d; }
+.badge-neut   { background: rgba(255,255,255,0.1); color: #aaa; }
+.badge-pos    { background: #dcfce7; color: #14532d; }
+.badge-neg    { background: #fee2e2; color: #7f1d1d; }
+
+/* ── Division Grid ── */
+.div-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+/* ── Division Card ── */
+.div-card {
+  background: var(--pdm-card-bg);
+  border: 1px solid var(--pdm-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.div-card-head {
+  background: var(--pdm-purple);
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.div-card-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.div-card-totals {
+  font-size: 10px;
+  color: var(--pdm-purple-lt);
+}
+.div-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.div-table thead tr {
+  background: var(--pdm-purple-lt);
+}
+.div-table thead th {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdm-purple);
+  padding: 5px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--pdm-border);
+  white-space: nowrap;
+}
+.div-table thead th:first-child { text-align: left; }
+.div-table tbody tr:nth-child(even) { background: #FAFAF8; }
+.div-table tbody tr:hover { background: var(--pdm-purple-lt); }
+.div-table td {
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--pdm-text);
+  text-align: right;
+  border-bottom: 1px solid #F0EEE8;
+  white-space: nowrap;
+}
+.div-table td:first-child {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdm-muted);
+  width: 90px;
+}
+.div-table tbody tr:last-child td { border-bottom: none; }
+.val-actual { font-weight: 700; color: var(--pdm-text); }
+.val-goal   { font-size: 10px; color: var(--pdm-muted); }
+.pct-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.pct-g { background: #dcfce7; color: #14532d; }
+.pct-a { background: #fef3c7; color: #78350f; }
+.pct-r { background: #fee2e2; color: #7f1d1d; }
+.pct-n { color: var(--pdm-muted); font-size: 10px; }
+.chg-pos { color: var(--pdm-green); font-size: 10px; font-weight: 700; }
+.chg-neg { color: var(--pdm-red);   font-size: 10px; font-weight: 700; }
+.chg-neu { color: var(--pdm-muted); font-size: 10px; }
+
+/* ── YoY section ── */
+.yoy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+.yoy-card {
+  background: var(--pdm-card-bg);
+  border: 1px solid var(--pdm-border);
+  border-top: 3px solid var(--pdm-purple);
+  border-radius: 5px;
+  padding: 10px 12px;
+}
+.yoy-div-name {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdm-purple);
+  margin-bottom: 8px;
+}
+.yoy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid #F0EEE8;
+  font-size: 11px;
+}
+.yoy-row:last-child { border-bottom: none; }
+.yoy-key { color: var(--pdm-muted); font-size: 10px; }
+.yoy-vals { display: flex; align-items: center; gap: 6px; }
+.yoy-nums { color: var(--pdm-text); }
+
+/* ── Legend ── */
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--pdm-muted);
+}
+.leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Footer ── */
+.pdm-footer {
+  background: var(--pdm-dark);
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+}
+.pdm-footer-left {
+  font-size: 10px;
+  color: #666;
+  letter-spacing: 0.06em;
+}
+.pdm-footer-right {
+  font-size: 10px;
+  color: var(--pdm-purple-mid);
+  letter-spacing: 0.06em;
+}
+
+/* ── Upload section ── */
+.upload-zone {
+  border: 2px dashed var(--pdm-border);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  background: var(--pdm-card-bg);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 20px;
+}
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--pdm-purple); background: var(--pdm-purple-lt); }
+.upload-zone input { display: none; }
+.upload-label { font-size: 12px; color: var(--pdm-muted); cursor: pointer; }
+.upload-label strong { color: var(--pdm-purple); }
+.upload-status {
+  font-size: 11px;
+  color: var(--pdm-green);
+  margin-top: 6px;
+  font-weight: 700;
+}
+.upload-error { color: var(--pdm-red); }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .main-wrap { padding: 14px 12px 32px; }
+  .pdm-header { padding: 10px 14px; }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .div-grid  { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="pdm-header">
+  <div class="pdm-logo">
+    <div class="pdm-logo-mark">
+      <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 14 L5 4 L9 11 L13 4 L16 14" stroke="white" stroke-width="2.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="pdm-logo-text">Power Digital</div>
+      <div class="pdm-logo-sub">Marketing</div>
+    </div>
+  </div>
+  <div class="pdm-header-right">Inbound Division Dashboard · 2026</div>
+</header>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- Upload zone for monthly refresh -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvUpload').click()"
+       ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="this.classList.remove('drag-over')">
+    <input type="file" id="csvUpload" accept=".csv,.json" onchange="handleFileUpload(event)">
+    <div class="upload-label">
+      <strong>Drop CSV or JSON to update data</strong> — or click to browse<br>
+      <span>Export from Dreamdata each month and drop here to refresh all charts</span>
+    </div>
+    <div class="upload-status" id="uploadStatus"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Period</span>
+      <select id="selPeriod" onchange="render()">
+        <option value="1">January 2026</option>
+        <option value="2">February 2026</option>
+        <option value="3">March 2026</option>
+        <option value="4" selected>April 2026</option>
+        <option value="Q1">Q1 (Jan – Mar)</option>
+        <option value="YTD">YTD (Jan – Apr)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Contract type</span>
+      <select id="selContract" onchange="render()">
+        <option value="retainer">Retainer only</option>
+        <option value="both">Retainer + Project</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Source</span>
+      <div class="src-btns">
+        <button class="src-btn active" id="btnIB"   onclick="setSource('Inbound')">Inbound</button>
+        <button class="src-btn"        id="btnSDR"  onclick="setSource('SDR')">SDR</button>
+        <button class="src-btn"        id="btnComb" onclick="setSource('Combined')">IB + SDR</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Compare</span>
+      <select id="selCompare" onchange="render()">
+        <option value="goal">vs Goal</option>
+        <option value="mom">Month over Month</option>
+        <option value="yoy">Year over Year</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-row">
+    <div class="legend-item"><div class="leg-dot" style="background:#dcfce7;border:1px solid #16a34a"></div>≥90% to goal</div>
+    <div class="legend-item"><div class="leg-dot" style="background:#fef3c7;border:1px solid #d97706"></div>70–89% to goal</div>
+    <div class="legend-item"><div class="leg-dot" style="background:#fee2e2;border:1px solid #dc2626"></div>&lt;70% to goal</div>
+    <div class="legend-item" style="margin-left:auto;font-size:9px;color:#aaa">Retainer · Action Date</div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="section-title">Total — all divisions</div>
+  <div class="kpi-strip" id="kpiStrip"></div>
+
+  <!-- Division Grid -->
+  <div class="section-title" style="margin-top:24px">By division</div>
+  <div class="div-grid" id="divGrid"></div>
+
+  <!-- YoY section (shown when compare=yoy) -->
+  <div id="yoySection" style="display:none">
+    <div class="section-title" style="margin-top:24px">Year over year — actuals only (2025 vs 2026)</div>
+    <div class="yoy-grid" id="yoyGrid"></div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="pdm-footer">
+  <div class="pdm-footer-left">POWER DIGITAL MARKETING · INBOUND DIVISION DASHBOARD · 2026</div>
+  <div class="pdm-footer-right" id="footerTimestamp"></div>
+</footer>
+
+<script>
+/* =========================================================
+   DATA — update by dropping a new CSV/JSON file each month
+   ========================================================= */
+
+const DIVS = ['B2B','Consumer Services','CPG','Fashion','Lifestyle','Core'];
+const MONTHS = ['1','2','3','4'];
+
+/* 2026 Actuals — keyed by month (string) > division > source */
+let A26 = {"1":{"B2B":{"Inbound":{"sql":10,"sal":3,"pres":3,"deals":1,"mgp":8500,"sql_to_sal":30.0,"sql_to_pres":30.0,"sal_win_rate":33.3},"SDR":{"sql":22,"sal":12,"pres":5,"deals":1,"mgp":41229,"sql_to_sal":54.5,"sql_to_pres":22.7,"sal_win_rate":8.3},"Combined":{"sql":32,"sal":15,"pres":8,"deals":2,"mgp":49729,"sql_to_sal":46.9,"sql_to_pres":25.0,"sal_win_rate":13.3}},"Consumer Services":{"Inbound":{"sql":6,"sal":4,"pres":6,"deals":1,"mgp":33750,"sql_to_sal":66.7,"sql_to_pres":100.0,"sal_win_rate":25.0},"SDR":{"sql":4,"sal":2,"pres":0,"deals":0,"mgp":0,"sql_to_sal":50.0,"sql_to_pres":0.0,"sal_win_rate":0.0},"Combined":{"sql":10,"sal":6,"pres":6,"deals":1,"mgp":33750,"sql_to_sal":60.0,"sql_to_pres":60.0,"sal_win_rate":16.7}},"CPG":{"Inbound":{"sql":3,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":10,"sal":4,"pres":2,"deals":0,"mgp":0,"sql_to_sal":40.0,"sql_to_pres":20.0,"sal_win_rate":0.0},"Combined":{"sql":13,"sal":4,"pres":2,"deals":0,"mgp":0,"sql_to_sal":30.8,"sql_to_pres":15.4,"sal_win_rate":0.0}},"Fashion":{"Inbound":{"sql":3,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":1,"sal":2,"pres":2,"deals":0,"mgp":0,"sql_to_sal":null,"sql_to_pres":null,"sal_win_rate":0.0},"Combined":{"sql":4,"sal":2,"pres":2,"deals":0,"mgp":0,"sql_to_sal":50.0,"sql_to_pres":50.0,"sal_win_rate":0.0}},"Lifestyle":{"Inbound":{"sql":3,"sal":2,"pres":0,"deals":0,"mgp":0,"sql_to_sal":66.7,"sql_to_pres":0.0,"sal_win_rate":0.0},"SDR":{"sql":1,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":100.0,"sql_to_pres":100.0,"sal_win_rate":0.0},"Combined":{"sql":4,"sal":3,"pres":1,"deals":0,"mgp":0,"sql_to_sal":75.0,"sql_to_pres":25.0,"sal_win_rate":0.0}},"Core":{"Inbound":{"sql":13,"sal":10,"pres":12,"deals":3,"mgp":21627,"sql_to_sal":76.9,"sql_to_pres":92.3,"sal_win_rate":30.0},"SDR":{"sql":7,"sal":3,"pres":4,"deals":1,"mgp":3000,"sql_to_sal":42.9,"sql_to_pres":57.1,"sal_win_rate":33.3},"Combined":{"sql":20,"sal":13,"pres":16,"deals":4,"mgp":24627,"sql_to_sal":65.0,"sql_to_pres":80.0,"sal_win_rate":30.8}}},"2":{"B2B":{"Inbound":{"sql":15,"sal":3,"pres":3,"deals":0,"mgp":0,"sql_to_sal":20.0,"sql_to_pres":20.0,"sal_win_rate":0.0},"SDR":{"sql":14,"sal":4,"pres":3,"deals":2,"mgp":30719,"sql_to_sal":28.6,"sql_to_pres":21.4,"sal_win_rate":50.0},"Combined":{"sql":29,"sal":7,"pres":6,"deals":2,"mgp":30719,"sql_to_sal":24.1,"sql_to_pres":20.7,"sal_win_rate":28.6}},"Consumer Services":{"Inbound":{"sql":4,"sal":1,"pres":1,"deals":1,"mgp":25627,"sql_to_sal":25.0,"sql_to_pres":25.0,"sal_win_rate":100.0},"SDR":{"sql":6,"sal":0,"pres":1,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":16.7,"sal_win_rate":null},"Combined":{"sql":10,"sal":1,"pres":2,"deals":1,"mgp":25627,"sql_to_sal":10.0,"sql_to_pres":20.0,"sal_win_rate":100.0}},"CPG":{"Inbound":{"sql":2,"sal":2,"pres":1,"deals":0,"mgp":0,"sql_to_sal":100.0,"sql_to_pres":50.0,"sal_win_rate":0.0},"SDR":{"sql":3,"sal":2,"pres":2,"deals":0,"mgp":0,"sql_to_sal":66.7,"sql_to_pres":66.7,"sal_win_rate":0.0},"Combined":{"sql":5,"sal":4,"pres":3,"deals":0,"mgp":0,"sql_to_sal":80.0,"sql_to_pres":60.0,"sal_win_rate":0.0}},"Fashion":{"Inbound":{"sql":2,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":null,"sql_to_pres":null,"sal_win_rate":null},"Combined":{"sql":2,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null}},"Lifestyle":{"Inbound":{"sql":0,"sal":0,"pres":1,"deals":1,"mgp":10615,"sql_to_sal":null,"sql_to_pres":null,"sal_win_rate":null},"SDR":{"sql":6,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":16.7,"sql_to_pres":16.7,"sal_win_rate":0.0},"Combined":{"sql":6,"sal":1,"pres":2,"deals":1,"mgp":10615,"sql_to_sal":16.7,"sql_to_pres":33.3,"sal_win_rate":100.0}},"Core":{"Inbound":{"sql":20,"sal":12,"pres":10,"deals":3,"mgp":27101,"sql_to_sal":60.0,"sql_to_pres":50.0,"sal_win_rate":25.0},"SDR":{"sql":5,"sal":3,"pres":0,"deals":1,"mgp":3669,"sql_to_sal":60.0,"sql_to_pres":0.0,"sal_win_rate":33.3},"Combined":{"sql":25,"sal":15,"pres":10,"deals":4,"mgp":30770,"sql_to_sal":60.0,"sql_to_pres":40.0,"sal_win_rate":26.7}}},"3":{"B2B":{"Inbound":{"sql":16,"sal":8,"pres":3,"deals":1,"mgp":9000,"sql_to_sal":50.0,"sql_to_pres":18.8,"sal_win_rate":12.5},"SDR":{"sql":18,"sal":9,"pres":5,"deals":2,"mgp":32604,"sql_to_sal":50.0,"sql_to_pres":27.8,"sal_win_rate":22.2},"Combined":{"sql":34,"sal":17,"pres":8,"deals":3,"mgp":41604,"sql_to_sal":50.0,"sql_to_pres":23.5,"sal_win_rate":17.6}},"Consumer Services":{"Inbound":{"sql":3,"sal":3,"pres":3,"deals":0,"mgp":0,"sql_to_sal":100.0,"sql_to_pres":100.0,"sal_win_rate":0.0},"SDR":{"sql":9,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":11.1,"sql_to_pres":11.1,"sal_win_rate":0.0},"Combined":{"sql":12,"sal":4,"pres":4,"deals":0,"mgp":0,"sql_to_sal":33.3,"sql_to_pres":33.3,"sal_win_rate":0.0}},"CPG":{"Inbound":{"sql":2,"sal":1,"pres":1,"deals":1,"mgp":8363,"sql_to_sal":50.0,"sql_to_pres":50.0,"sal_win_rate":100.0},"SDR":{"sql":7,"sal":3,"pres":2,"deals":0,"mgp":0,"sql_to_sal":42.9,"sql_to_pres":28.6,"sal_win_rate":0.0},"Combined":{"sql":9,"sal":4,"pres":3,"deals":1,"mgp":8363,"sql_to_sal":44.4,"sql_to_pres":33.3,"sal_win_rate":25.0}},"Fashion":{"Inbound":{"sql":2,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":2,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"Combined":{"sql":4,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null}},"Lifestyle":{"Inbound":{"sql":1,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":100.0,"sql_to_pres":100.0,"sal_win_rate":0.0},"SDR":{"sql":5,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":20.0,"sql_to_pres":20.0,"sal_win_rate":0.0},"Combined":{"sql":6,"sal":2,"pres":2,"deals":0,"mgp":0,"sql_to_sal":33.3,"sql_to_pres":33.3,"sal_win_rate":0.0}},"Core":{"Inbound":{"sql":20,"sal":11,"pres":9,"deals":4,"mgp":41805,"sql_to_sal":55.0,"sql_to_pres":45.0,"sal_win_rate":36.4},"SDR":{"sql":18,"sal":4,"pres":4,"deals":0,"mgp":0,"sql_to_sal":22.2,"sql_to_pres":22.2,"sal_win_rate":0.0},"Combined":{"sql":38,"sal":15,"pres":13,"deals":4,"mgp":41805,"sql_to_sal":39.5,"sql_to_pres":34.2,"sal_win_rate":26.7}}},"4":{"B2B":{"Inbound":{"sql":8,"sal":6,"pres":7,"deals":0,"mgp":0,"sql_to_sal":75.0,"sql_to_pres":87.5,"sal_win_rate":0.0},"SDR":{"sql":4,"sal":6,"pres":4,"deals":2,"mgp":24768,"sql_to_sal":150.0,"sql_to_pres":100.0,"sal_win_rate":33.3},"Combined":{"sql":12,"sal":12,"pres":11,"deals":2,"mgp":24768,"sql_to_sal":100.0,"sql_to_pres":91.7,"sal_win_rate":16.7}},"Consumer Services":{"Inbound":{"sql":3,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":5,"sal":4,"pres":3,"deals":0,"mgp":0,"sql_to_sal":80.0,"sql_to_pres":60.0,"sal_win_rate":0.0},"Combined":{"sql":8,"sal":4,"pres":3,"deals":0,"mgp":0,"sql_to_sal":50.0,"sql_to_pres":37.5,"sal_win_rate":0.0}},"CPG":{"Inbound":{"sql":2,"sal":1,"pres":0,"deals":0,"mgp":0,"sql_to_sal":50.0,"sql_to_pres":0.0,"sal_win_rate":0.0},"SDR":{"sql":1,"sal":0,"pres":1,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":100.0,"sal_win_rate":null},"Combined":{"sql":3,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":33.3,"sql_to_pres":33.3,"sal_win_rate":0.0}},"Fashion":{"Inbound":{"sql":1,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":100.0,"sql_to_pres":100.0,"sal_win_rate":0.0},"SDR":{"sql":0,"sal":1,"pres":1,"deals":0,"mgp":0,"sql_to_sal":null,"sql_to_pres":null,"sal_win_rate":0.0},"Combined":{"sql":1,"sal":2,"pres":2,"deals":0,"mgp":0,"sql_to_sal":null,"sql_to_pres":null,"sal_win_rate":0.0}},"Lifestyle":{"Inbound":{"sql":1,"sal":0,"pres":0,"deals":1,"mgp":47285,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"SDR":{"sql":6,"sal":0,"pres":0,"deals":0,"mgp":0,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null},"Combined":{"sql":7,"sal":0,"pres":0,"deals":1,"mgp":47285,"sql_to_sal":0.0,"sql_to_pres":0.0,"sal_win_rate":null}},"Core":{"Inbound":{"sql":20,"sal":10,"pres":7,"deals":2,"mgp":50923,"sql_to_sal":50.0,"sql_to_pres":35.0,"sal_win_rate":20.0},"SDR":{"sql":11,"sal":5,"pres":4,"deals":0,"mgp":0,"sql_to_sal":45.5,"sql_to_pres":36.4,"sal_win_rate":0.0},"Combined":{"sql":31,"sal":15,"pres":11,"deals":2,"mgp":50923,"sql_to_sal":48.4,"sql_to_pres":35.5,"sal_win_rate":13.3}}}};
+
+/* 2025 Actuals — for YoY and MoM base reference */
+const A25 = {"1":{"B2B":{"Inbound":{"sql":10,"sal":14,"pres":9,"deals":2,"mgp":18343},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":10,"sal":14,"pres":9,"deals":2,"mgp":18343}},"Consumer Services":{"Inbound":{"sql":5,"sal":5,"pres":4,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":5,"sal":5,"pres":4,"deals":0,"mgp":0}},"CPG":{"Inbound":{"sql":5,"sal":3,"pres":5,"deals":1,"mgp":12063},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":5,"sal":3,"pres":5,"deals":1,"mgp":12063}},"Fashion":{"Inbound":{"sql":3,"sal":2,"pres":2,"deals":1,"mgp":10133},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":3,"sal":2,"pres":2,"deals":1,"mgp":10133}},"Lifestyle":{"Inbound":{"sql":4,"sal":2,"pres":2,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":4,"sal":2,"pres":2,"deals":0,"mgp":0}},"Core":{"Inbound":{"sql":27,"sal":13,"pres":12,"deals":1,"mgp":4750},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":27,"sal":13,"pres":12,"deals":1,"mgp":4750}}},"2":{"B2B":{"Inbound":{"sql":16,"sal":7,"pres":5,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":16,"sal":7,"pres":5,"deals":0,"mgp":0}},"Consumer Services":{"Inbound":{"sql":3,"sal":1,"pres":1,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":3,"sal":1,"pres":1,"deals":0,"mgp":0}},"CPG":{"Inbound":{"sql":6,"sal":2,"pres":2,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":6,"sal":2,"pres":2,"deals":0,"mgp":0}},"Fashion":{"Inbound":{"sql":1,"sal":1,"pres":1,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":1,"sal":1,"pres":1,"deals":0,"mgp":0}},"Lifestyle":{"Inbound":{"sql":3,"sal":2,"pres":2,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":3,"sal":2,"pres":2,"deals":0,"mgp":0}},"Core":{"Inbound":{"sql":24,"sal":12,"pres":10,"deals":2,"mgp":20237},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":24,"sal":12,"pres":10,"deals":2,"mgp":20237}}},"3":{"B2B":{"Inbound":{"sql":18,"sal":11,"pres":7,"deals":1,"mgp":14343},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":18,"sal":11,"pres":7,"deals":1,"mgp":14343}},"Consumer Services":{"Inbound":{"sql":6,"sal":4,"pres":3,"deals":2,"mgp":32567},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":6,"sal":4,"pres":3,"deals":2,"mgp":32567}},"CPG":{"Inbound":{"sql":7,"sal":4,"pres":5,"deals":1,"mgp":8363},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":7,"sal":4,"pres":5,"deals":1,"mgp":8363}},"Fashion":{"Inbound":{"sql":2,"sal":2,"pres":1,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":2,"sal":2,"pres":1,"deals":0,"mgp":0}},"Lifestyle":{"Inbound":{"sql":4,"sal":3,"pres":2,"deals":2,"mgp":37250},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":4,"sal":3,"pres":2,"deals":2,"mgp":37250}},"Core":{"Inbound":{"sql":21,"sal":17,"pres":12,"deals":4,"mgp":47292},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":21,"sal":17,"pres":12,"deals":4,"mgp":47292}}},"4":{"B2B":{"Inbound":{"sql":11,"sal":7,"pres":5,"deals":1,"mgp":10000},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":11,"sal":7,"pres":5,"deals":1,"mgp":10000}},"Consumer Services":{"Inbound":{"sql":5,"sal":4,"pres":3,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":5,"sal":4,"pres":3,"deals":0,"mgp":0}},"CPG":{"Inbound":{"sql":7,"sal":4,"pres":3,"deals":1,"mgp":9500},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":7,"sal":4,"pres":3,"deals":1,"mgp":9500}},"Fashion":{"Inbound":{"sql":3,"sal":2,"pres":2,"deals":0,"mgp":0},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":3,"sal":2,"pres":2,"deals":0,"mgp":0}},"Lifestyle":{"Inbound":{"sql":3,"sal":2,"pres":1,"deals":1,"mgp":16000},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":3,"sal":2,"pres":1,"deals":1,"mgp":16000}},"Core":{"Inbound":{"sql":22,"sal":15,"pres":11,"deals":3,"mgp":31500},"SDR":{"sql":0,"sal":0,"pres":0,"deals":0,"mgp":0},"Combined":{"sql":22,"sal":15,"pres":11,"deals":3,"mgp":31500}}}};
+
+/* 2026 Goals — keyed by month > division > source */
+const GOALS = {"1":{"TOTAL":{"Inbound":{"sql":48.0,"sal":23.0,"pres":24.0,"deals":6.0,"mgp":88179.0,"sql_to_sal":47.0,"sql_to_pres":94.0,"sal_win_rate":27.0},"SDR":{"sql":31.0,"sal":8.0,"pres":3.0,"deals":4.0,"mgp":76424.0,"sql_to_sal":25.0,"sql_to_pres":67.0,"sal_win_rate":47.0},"Combined":{"sql_to_sal":36.0,"sql_to_pres":80.5,"sal_win_rate":37.0,"sql":79.0,"sal":31.0,"pres":27.0,"deals":10.0,"mgp":164603.0}},"Fashion":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":1994.0,"sql_to_sal":66.0,"sql_to_pres":100.0,"sal_win_rate":37.0},"SDR":{"sql":3.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":921.0,"sql_to_sal":30.0,"sql_to_pres":75.0,"sal_win_rate":20.0},"Combined":{"sql_to_sal":48.0,"sql_to_pres":87.5,"sal_win_rate":28.5,"sql":5.0,"sal":2.0,"pres":2.0,"mgp":2915.0}},"Lifestyle":{"Inbound":{"sql":2.0,"sal":1.0,"pres":0.0,"deals":0.0,"mgp":8403.0,"sql_to_sal":50.0,"sql_to_pres":0.0,"sal_win_rate":32.0},"SDR":{"sql":4.0,"sal":1.0,"pres":2.0,"deals":0.0,"mgp":1280.0,"sql_to_sal":21.0,"sql_to_pres":55.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":35.5,"sql_to_pres":27.5,"sal_win_rate":23.5,"sql":6.0,"sal":2.0,"pres":2.0,"mgp":9683.0}},"Consumer Services":{"Inbound":{"sql":4.0,"sal":2.0,"pres":2.0,"deals":0.0,"mgp":0.0,"sql_to_sal":46.0,"sql_to_pres":100.0,"sal_win_rate":35.0},"SDR":{"sql":4.0,"sal":3.0,"pres":0.0,"deals":0.0,"mgp":5278.0,"sql_to_sal":86.0,"sql_to_pres":53.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":66.0,"sql_to_pres":76.5,"sal_win_rate":25.0,"sql":8.0,"sal":5.0,"pres":2.0,"mgp":5278.0}},"B2B":{"Inbound":{"sql":14.0,"sal":6.0,"pres":7.0,"deals":1.0,"mgp":12373.0,"sql_to_sal":42.0,"sql_to_pres":80.0,"sal_win_rate":21.0},"SDR":{"sql":11.0,"sal":0.0,"pres":0.0,"deals":0.0,"mgp":0.0,"sql_to_sal":0.0,"sql_to_pres":60.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":21.0,"sql_to_pres":70.0,"sal_win_rate":18.0,"sql":25.0,"sal":6.0,"pres":7.0,"deals":1.0,"mgp":12373.0}},"CPG":{"Inbound":{"sql":5.0,"sal":2.0,"pres":2.0,"deals":0.0,"mgp":6033.0,"sql_to_sal":40.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":6.0,"sal":0.72,"pres":1.0,"deals":0.0,"mgp":1969.0,"sql_to_sal":12.0,"sql_to_pres":100.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":26.0,"sql_to_pres":100.0,"sal_win_rate":23.5,"sql":11.0,"sal":2.72,"pres":3.0,"mgp":8002.0}},"Core":{"Inbound":{"sql":21.0,"sal":10.5,"pres":11.0,"deals":4.0,"mgp":59375.0,"sql_to_sal":50.0,"sql_to_pres":92.0,"sal_win_rate":32.0},"SDR":{"sql":3.0,"sal":1.86,"pres":0.0,"deals":3.0,"mgp":66976.0,"sql_to_sal":62.0,"sql_to_pres":60.0,"sal_win_rate":25.0},"Combined":{"sql_to_sal":56.0,"sql_to_pres":76.0,"sal_win_rate":28.5,"sql":24.0,"sal":12.36,"pres":11.0,"deals":7.0,"mgp":126351.0}}},"2":{"TOTAL":{"Inbound":{"sql":45.0,"sal":21.0,"pres":23.0,"deals":7.0,"mgp":112214.0,"sql_to_sal":47.0,"sql_to_pres":91.0,"sal_win_rate":32.0},"SDR":{"sql":35.0,"sal":10.0,"pres":4.0,"deals":1.0,"mgp":33822.0,"sql_to_sal":28.0,"sql_to_pres":69.0,"sal_win_rate":14.0},"Combined":{"sql_to_sal":37.5,"sql_to_pres":80.0,"sal_win_rate":23.0,"sql":80.0,"sal":31.0,"pres":27.0,"deals":8.0,"mgp":146036.0}},"Fashion":{"Inbound":{"sql":1.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":9736.0,"sql_to_sal":66.0,"sql_to_pres":100.0,"sal_win_rate":37.0},"SDR":{"sql":3.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":3037.0,"sql_to_sal":30.0,"sql_to_pres":75.0,"sal_win_rate":20.0},"Combined":{"sql_to_sal":48.0,"sql_to_pres":87.5,"sal_win_rate":28.5,"sql":4.0,"sal":2.0,"pres":2.0,"mgp":12773.0}},"Lifestyle":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":6571.0,"sql_to_sal":50.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":4.0,"sal":1.0,"pres":2.0,"deals":0.0,"mgp":2062.0,"sql_to_sal":23.0,"sql_to_pres":55.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":36.5,"sql_to_pres":77.5,"sal_win_rate":23.5,"sql":6.0,"sal":2.0,"pres":3.0,"mgp":8633.0}},"Consumer Services":{"Inbound":{"sql":3.0,"sal":1.0,"pres":1.0,"deals":1.0,"mgp":11951.0,"sql_to_sal":46.0,"sql_to_pres":100.0,"sal_win_rate":35.0},"SDR":{"sql":4.0,"sal":2.0,"pres":0.0,"deals":1.0,"mgp":11607.0,"sql_to_sal":46.0,"sql_to_pres":53.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":46.0,"sql_to_pres":76.5,"sal_win_rate":25.0,"sql":7.0,"sal":3.0,"pres":1.0,"deals":2.0,"mgp":23558.0}},"B2B":{"Inbound":{"sql":16.0,"sal":7.0,"pres":7.0,"deals":1.0,"mgp":19443.0,"sql_to_sal":42.0,"sql_to_pres":100.0,"sal_win_rate":21.0},"SDR":{"sql":12.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":0.0,"sql_to_sal":7.0,"sql_to_pres":100.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":24.5,"sql_to_pres":100.0,"sal_win_rate":18.0,"sql":28.0,"sal":8.0,"pres":8.0,"deals":1.0,"mgp":19443.0}},"CPG":{"Inbound":{"sql":3.0,"sal":1.2,"pres":1.0,"deals":1.0,"mgp":15385.0,"sql_to_sal":40.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":10.0,"sal":4.2,"pres":0.0,"deals":0.0,"mgp":1856.0,"sql_to_sal":42.0,"sql_to_pres":70.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":41.0,"sql_to_pres":85.0,"sal_win_rate":23.5,"sql":13.0,"sal":5.4,"pres":1.0,"deals":1.0,"mgp":17241.0}},"Core":{"Inbound":{"sql":20.0,"sal":10.0,"pres":12.0,"deals":3.0,"mgp":49128.0,"sql_to_sal":50.0,"sql_to_pres":83.0,"sal_win_rate":32.0},"SDR":{"sql":2.0,"sal":1.22,"pres":0.0,"deals":0.0,"mgp":15260.0,"sql_to_sal":61.0,"sql_to_pres":60.0,"sal_win_rate":100.0},"Combined":{"sql_to_sal":55.5,"sql_to_pres":71.5,"sal_win_rate":66.0,"sql":22.0,"sal":11.22,"pres":12.0,"deals":3.0,"mgp":64388.0}}},"3":{"TOTAL":{"Inbound":{"sql":43.0,"sal":20.0,"pres":32.0,"deals":6.0,"mgp":94012.0,"sql_to_sal":46.0,"sql_to_pres":62.0,"sal_win_rate":30.0},"SDR":{"sql":40.0,"sal":13.0,"pres":11.0,"deals":3.0,"mgp":60003.0,"sql_to_sal":32.0,"sql_to_pres":58.0,"sal_win_rate":20.0},"Combined":{"sql_to_sal":39.0,"sql_to_pres":60.0,"sal_win_rate":25.0,"sql":83.0,"sal":33.0,"pres":43.0,"deals":9.0,"mgp":154015.0}},"Fashion":{"Inbound":{"sql":1.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":4639.0,"sql_to_sal":66.0,"sql_to_pres":100.0,"sal_win_rate":37.0},"SDR":{"sql":3.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":2894.0,"sql_to_sal":30.0,"sql_to_pres":75.0,"sal_win_rate":20.0},"Combined":{"sql_to_sal":48.0,"sql_to_pres":87.5,"sal_win_rate":28.5,"sql":4.0,"sal":2.0,"pres":2.0,"mgp":7533.0}},"Lifestyle":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":6262.0,"sql_to_sal":50.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":4.0,"sal":1.0,"pres":0.0,"deals":0.0,"mgp":1019.0,"sql_to_sal":31.0,"sql_to_pres":55.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":40.5,"sql_to_pres":77.5,"sal_win_rate":23.5,"sql":6.0,"sal":2.0,"pres":1.0,"mgp":7281.0}},"Consumer Services":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":8543.0,"sql_to_sal":46.0,"sql_to_pres":100.0,"sal_win_rate":27.0},"SDR":{"sql":4.0,"sal":2.0,"pres":0.0,"deals":0.0,"mgp":5917.0,"sql_to_sal":46.0,"sql_to_pres":53.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":46.0,"sql_to_pres":76.5,"sal_win_rate":21.0,"sql":6.0,"sal":3.0,"pres":1.0,"mgp":14460.0}},"B2B":{"Inbound":{"sql":16.0,"sal":7.0,"pres":13.0,"deals":1.0,"mgp":21178.0,"sql_to_sal":42.0,"sql_to_pres":50.0,"sal_win_rate":21.0},"SDR":{"sql":14.0,"sal":2.0,"pres":3.0,"deals":0.0,"mgp":1697.0,"sql_to_sal":13.0,"sql_to_pres":53.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":27.5,"sql_to_pres":51.5,"sal_win_rate":18.0,"sql":30.0,"sal":9.0,"pres":16.0,"deals":1.0,"mgp":22875.0}},"CPG":{"Inbound":{"sql":4.0,"sal":1.6,"pres":2.0,"deals":0.0,"mgp":8798.0,"sql_to_sal":40.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":11.0,"sal":3.19,"pres":6.0,"deals":1.0,"mgp":10319.0,"sql_to_sal":29.0,"sql_to_pres":50.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":34.5,"sql_to_pres":75.0,"sal_win_rate":23.5,"sql":15.0,"sal":4.79,"pres":8.0,"deals":1.0,"mgp":19117.0}},"Core":{"Inbound":{"sql":18.0,"sal":9.0,"pres":14.0,"deals":3.0,"mgp":44592.0,"sql_to_sal":50.0,"sql_to_pres":63.0,"sal_win_rate":32.0},"SDR":{"sql":4.0,"sal":3.76,"pres":0.0,"deals":1.0,"mgp":38157.0,"sql_to_sal":94.0,"sql_to_pres":60.0,"sal_win_rate":0.0},"Combined":{"sql_to_sal":72.0,"sql_to_pres":61.5,"sal_win_rate":16.0,"sql":22.0,"sal":12.76,"pres":14.0,"deals":4.0,"mgp":82749.0}}},"4":{"TOTAL":{"Inbound":{"sql":34.0,"sal":16.0,"pres":18.0,"deals":6.0,"mgp":94687.0,"sql_to_sal":47.0,"sql_to_pres":90.0,"sal_win_rate":35.0},"SDR":{"sql":40.0,"sal":11.0,"pres":15.0,"deals":1.0,"mgp":25680.0,"sql_to_sal":28.0,"sql_to_pres":62.0,"sal_win_rate":13.0},"Combined":{"sql_to_sal":37.5,"sql_to_pres":76.0,"sal_win_rate":24.0,"sql":74.0,"sal":27.0,"pres":33.0,"deals":7.0,"mgp":120367.0}},"Fashion":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":4929.0,"sql_to_sal":66.0,"sql_to_pres":100.0,"sal_win_rate":37.0},"SDR":{"sql":3.0,"sal":1.0,"pres":0.0,"deals":0.0,"mgp":3075.0,"sql_to_sal":30.0,"sql_to_pres":75.0,"sal_win_rate":20.0},"Combined":{"sql_to_sal":48.0,"sql_to_pres":87.5,"sal_win_rate":28.5,"sql":5.0,"sal":2.0,"pres":1.0,"mgp":8004.0}},"Lifestyle":{"Inbound":{"sql":2.0,"sal":1.0,"pres":2.0,"deals":0.0,"mgp":6653.0,"sql_to_sal":50.0,"sql_to_pres":50.0,"sal_win_rate":32.0},"SDR":{"sql":4.0,"sal":0.0,"pres":1.0,"deals":0.0,"mgp":2862.0,"sql_to_sal":11.0,"sql_to_pres":55.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":30.5,"sql_to_pres":52.5,"sal_win_rate":23.5,"sql":6.0,"sal":1.0,"pres":3.0,"mgp":9515.0}},"Consumer Services":{"Inbound":{"sql":2.0,"sal":1.0,"pres":1.0,"deals":0.0,"mgp":8487.0,"sql_to_sal":46.0,"sql_to_pres":100.0,"sal_win_rate":27.0},"SDR":{"sql":4.0,"sal":2.0,"pres":4.0,"deals":0.0,"mgp":6286.0,"sql_to_sal":47.0,"sql_to_pres":53.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":46.5,"sql_to_pres":76.5,"sal_win_rate":21.0,"sql":6.0,"sal":3.0,"pres":5.0,"mgp":14773.0}},"B2B":{"Inbound":{"sql":11.0,"sal":5.0,"pres":5.0,"deals":1.0,"mgp":24107.0,"sql_to_sal":42.0,"sql_to_pres":100.0,"sal_win_rate":21.0},"SDR":{"sql":13.0,"sal":5.0,"pres":9.0,"deals":0.0,"mgp":5130.0,"sql_to_sal":40.0,"sql_to_pres":60.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":41.0,"sql_to_pres":80.0,"sal_win_rate":18.0,"sql":24.0,"sal":10.0,"pres":14.0,"deals":1.0,"mgp":29237.0}},"CPG":{"Inbound":{"sql":3.0,"sal":1.2,"pres":1.0,"deals":1.0,"mgp":7872.0,"sql_to_sal":40.0,"sql_to_pres":100.0,"sal_win_rate":32.0},"SDR":{"sql":13.0,"sal":1.56,"pres":2.0,"deals":0.0,"mgp":8327.0,"sql_to_sal":12.0,"sql_to_pres":70.0,"sal_win_rate":15.0},"Combined":{"sql_to_sal":26.0,"sql_to_pres":85.0,"sal_win_rate":23.5,"sql":16.0,"sal":2.76,"pres":3.0,"deals":1.0,"mgp":16199.0}},"Core":{"Inbound":{"sql":14.0,"sal":7.0,"pres":8.0,"deals":3.0,"mgp":42639.0,"sql_to_sal":50.0,"sql_to_pres":89.0,"sal_win_rate":32.0},"SDR":{"sql":3.0,"sal":1.05,"pres":0.0,"deals":0.0,"mgp":0.0,"sql_to_sal":35.0,"sql_to_pres":60.0,"sal_win_rate":0.0},"Combined":{"sql_to_sal":42.5,"sql_to_pres":74.5,"sal_win_rate":16.0,"sql":17.0,"sal":8.05,"pres":8.0,"deals":3.0,"mgp":42639.0}}}};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let curSource = 'Inbound';
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function getMonths(period) {
+  if (period === 'Q1')  return ['1','2','3'];
+  if (period === 'YTD') return ['1','2','3','4'];
+  return [period];
+}
+function getPrevMonth(period) {
+  const idx = MONTHS.indexOf(period);
+  return (idx > 0) ? MONTHS[idx - 1] : null;
+}
+
+function sumPeriod(dataObj, months, div, src) {
+  let sql=0,sal=0,pres=0,deals=0,mgp=0;
+  months.forEach(m => {
+    const d = dataObj[m]?.[div]?.[src];
+    if (d) { sql+=d.sql||0; sal+=d.sal||0; pres+=d.pres||0; deals+=d.deals||0; mgp+=d.mgp||0; }
+  });
+  return {
+    sql, sal, pres, deals, mgp,
+    sql_to_sal:  sql  > 0 ? +((sal/sql)*100).toFixed(1)  : null,
+    sql_to_pres: sql  > 0 ? +((pres/sql)*100).toFixed(1) : null,
+    sal_win_rate: sal > 0 ? +((deals/sal)*100).toFixed(1) : null
+  };
+}
+
+function sumGoals(months, div, src) {
+  const gsrc = src === 'SDR' ? 'SDR' : src === 'Combined' ? 'Combined' : 'Inbound';
+  let sql=0,sal=0,pres=0,deals=0,mgp=0;
+  let sql_to_sal_vals=[], sql_to_pres_vals=[], sal_win_rate_vals=[];
+  months.forEach(m => {
+    const g = GOALS[m]?.[div]?.[gsrc];
+    if (g) {
+      sql+=(g.sql||0); sal+=(g.sal||0); pres+=(g.pres||0); deals+=(g.deals||0); mgp+=(g.mgp||0);
+      if (g.sql_to_sal  != null) sql_to_sal_vals.push(g.sql_to_sal);
+      if (g.sql_to_pres != null) sql_to_pres_vals.push(g.sql_to_pres);
+      if (g.sal_win_rate!= null) sal_win_rate_vals.push(g.sal_win_rate);
+    }
+  });
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10 : null;
+  return { sql, sal, pres, deals, mgp,
+    sql_to_sal:   avg(sql_to_sal_vals),
+    sql_to_pres:  avg(sql_to_pres_vals),
+    sal_win_rate: avg(sal_win_rate_vals)
+  };
+}
+
+function fmtMGP(v) {
+  if (v >= 100000) return '$' + (v/1000).toFixed(0) + 'K';
+  if (v >= 1000)   return '$' + (v/1000).toFixed(1) + 'K';
+  return '$' + Math.round(v);
+}
+function fmtPct(v) { return v === null ? '—' : v + '%'; }
+function fmtNum(v) { return v === null ? '—' : v; }
+
+function pctClass(act, goal) {
+  if (!goal || goal === 0) return '';
+  const p = act / goal;
+  return p >= 0.9 ? 'pct-g' : p >= 0.7 ? 'pct-a' : 'pct-r';
+}
+function pctVal(act, goal) {
+  if (!goal || goal === 0) return null;
+  return Math.round(act / goal * 100);
+}
+function chgBadge(cur, prev) {
+  if (prev === null || prev === undefined || prev === 0) return '';
+  const p = Math.round((cur - prev) / prev * 100);
+  const cls = p >= 0 ? 'chg-pos' : 'chg-neg';
+  return `<span class="${cls}">${p >= 0 ? '↑' : '↓'}${Math.abs(p)}%</span>`;
+}
+
+/* =========================================================
+   RENDER — KPI STRIP
+   ========================================================= */
+function renderKPI(months, src, compare) {
+  let totAct = {sql:0,sal:0,pres:0,deals:0,mgp:0};
+  DIVS.forEach(d => {
+    const r = sumPeriod(A26, months, d, src);
+    totAct.sql+=r.sql; totAct.sal+=r.sal; totAct.pres+=r.pres; totAct.deals+=r.deals; totAct.mgp+=r.mgp;
+  });
+  totAct.sql_to_sal  = totAct.sql  > 0 ? +((totAct.sal/totAct.sql)*100).toFixed(1)   : null;
+  totAct.sql_to_pres = totAct.sql  > 0 ? +((totAct.pres/totAct.sql)*100).toFixed(1)  : null;
+  totAct.sal_win_rate= totAct.sal  > 0 ? +((totAct.deals/totAct.sal)*100).toFixed(1) : null;
+
+  const totGoal = sumGoals(months, 'TOTAL', src);
+
+  let totPrev25 = {sql:0,sal:0,pres:0,deals:0,mgp:0};
+  DIVS.forEach(d => {
+    const r = sumPeriod(A25, months, d, src);
+    totPrev25.sql+=r.sql; totPrev25.sal+=r.sal; totPrev25.pres+=r.pres; totPrev25.deals+=r.deals; totPrev25.mgp+=r.mgp;
+  });
+
+  const period = document.getElementById('selPeriod').value;
+  let prevMonthAct = null;
+  if (!['Q1','YTD'].includes(period) && compare === 'mom') {
+    const pm = getPrevMonth(period);
+    if (pm) {
+      prevMonthAct = {sql:0,sal:0,pres:0,deals:0,mgp:0};
+      DIVS.forEach(d => {
+        const r = sumPeriod(A26, [pm], d, src);
+        prevMonthAct.sql+=r.sql; prevMonthAct.sal+=r.sal; prevMonthAct.pres+=r.pres; prevMonthAct.deals+=r.deals; prevMonthAct.mgp+=r.mgp;
+      });
+    }
+  }
+
+  const kpis = [
+    { label: 'SQL',          key: 'sql',          val: totAct.sql,           goal: totGoal.sql,   prev25: totPrev25.sql,   prevMom: prevMonthAct?.sql   },
+    { label: 'SAL',          key: 'sal',          val: totAct.sal,           goal: totGoal.sal,   prev25: totPrev25.sal,   prevMom: prevMonthAct?.sal   },
+    { label: 'PRESENTATION', key: 'pres',         val: totAct.pres,          goal: totGoal.pres,  prev25: totPrev25.pres,  prevMom: prevMonthAct?.pres  },
+    { label: 'DEALS',        key: 'deals',        val: totAct.deals,         goal: totGoal.deals, prev25: totPrev25.deals, prevMom: prevMonthAct?.deals },
+    { label: 'MGP',          key: 'mgp',          val: totAct.mgp,           goal: totGoal.mgp,   prev25: totPrev25.mgp,   prevMom: prevMonthAct?.mgp,  money: true },
+    { label: 'SQL→SAL %',    key: 'sql_to_sal',   val: totAct.sql_to_sal,    goal: totGoal.sql_to_sal,   isRate: true },
+    { label: 'SQL→PRES %',   key: 'sql_to_pres',  val: totAct.sql_to_pres,   goal: totGoal.sql_to_pres,  isRate: true },
+    { label: 'SAL WIN RATE', key: 'sal_win_rate', val: totAct.sal_win_rate,  goal: totGoal.sal_win_rate, isRate: true },
+  ];
+
+  return kpis.map(k => {
+    const disp = k.money ? fmtMGP(k.val) : k.isRate ? fmtPct(k.val) : fmtNum(k.val);
+    const pct  = k.goal  ? pctVal(k.val, k.goal) : null;
+    const pc   = k.goal  ? pctClass(k.val, k.goal) : '';
+    const barW = pct ? Math.min(pct, 100) : 0;
+    const barColor = pc === 'pct-g' ? '#16A34A' : pc === 'pct-a' ? '#D97706' : pc === 'pct-r' ? '#DC2626' : '#7265E3';
+
+    let badge = '';
+    if (compare === 'goal' && pct !== null) {
+      badge = `<span class="kpi-badge badge-${pc === 'pct-g' ? 'green' : pc === 'pct-a' ? 'amber' : 'red'}">${pct}% to goal</span>`;
+    } else if (compare === 'mom' && k.prevMom !== undefined && k.prevMom !== null) {
+      const p = k.prevMom > 0 ? Math.round((k.val - k.prevMom) / k.prevMom * 100) : null;
+      if (p !== null) badge = `<span class="kpi-badge ${p >= 0 ? 'badge-pos' : 'badge-neg'}">${p >= 0 ? '↑' : '↓'}${Math.abs(p)}% MoM</span>`;
+    } else if (compare === 'yoy' && k.prev25 !== undefined) {
+      const p = k.prev25 > 0 ? Math.round((k.val - k.prev25) / k.prev25 * 100) : null;
+      if (p !== null) badge = `<span class="kpi-badge ${p >= 0 ? 'badge-pos' : 'badge-neg'}">${p >= 0 ? '↑' : '↓'}${Math.abs(p)}% YoY</span>`;
+    }
+
+    const goalDisp = k.goal ? (k.money ? ' / ' + fmtMGP(k.goal) : ' / ' + k.goal) : '';
+
+    return `<div class="kpi-box">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-val">${disp}</div>
+      <div class="kpi-sub">Goal${goalDisp}</div>
+      ${k.goal ? `<div class="kpi-bar-wrap"><div class="kpi-bar" style="width:${barW}%;background:${barColor}"></div></div>` : ''}
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   RENDER — DIVISION CARDS
+   ========================================================= */
+function renderDivCards(months, src, compare) {
+  const period = document.getElementById('selPeriod').value;
+
+  return DIVS.map(div => {
+    const act  = sumPeriod(A26, months, div, src);
+    const goal = sumGoals(months, div, src);
+    const y25  = sumPeriod(A25, months, div, src);
+
+    let prevAct = null;
+    if (!['Q1','YTD'].includes(period) && compare === 'mom') {
+      const pm = getPrevMonth(period);
+      if (pm) prevAct = sumPeriod(A26, [pm], div, src);
+    }
+
+    const metrics = [
+      { label: 'SQL',         a: act.sql,          g: goal.sql,   y: y25.sql,   p: prevAct?.sql   },
+      { label: 'SAL',         a: act.sal,          g: goal.sal,   y: y25.sal,   p: prevAct?.sal   },
+      { label: 'Presentation',a: act.pres,         g: goal.pres,  y: y25.pres,  p: prevAct?.pres  },
+      { label: 'Deals',       a: act.deals,        g: goal.deals, y: y25.deals, p: prevAct?.deals },
+      { label: 'MGP',         a: act.mgp,          g: goal.mgp,   y: y25.mgp,   p: prevAct?.mgp,  money: true  },
+      { label: 'SQL→SAL',     a: act.sql_to_sal,   g: goal.sql_to_sal,   y: y25.sql_to_sal,   p: prevAct?.sql_to_sal,   rate: true },
+      { label: 'SQL→Pres',    a: act.sql_to_pres,  g: goal.sql_to_pres,  y: y25.sql_to_pres,  p: prevAct?.sql_to_pres,  rate: true },
+      { label: 'SAL Win',     a: act.sal_win_rate, g: goal.sal_win_rate, y: y25.sal_win_rate, p: prevAct?.sal_win_rate, rate: true },
+    ];
+
+    const rows = metrics.map((m, i) => {
+      const actual = m.money ? fmtMGP(m.a) : m.rate ? fmtPct(m.a) : fmtNum(m.a);
+      const goalD  = m.g != null ? (m.money ? fmtMGP(m.g) : m.g) : '—';
+
+      let pctCell = '';
+      if (compare === 'goal' && m.g != null && m.g !== 0) {
+        const p = Math.round(m.a / m.g * 100);
+        const pc = pctClass(m.a, m.g);
+        pctCell = `<span class="pct-pill ${pc}">${p}%</span>`;
+      } else if (compare === 'mom') {
+        pctCell = chgBadge(m.a, m.p);
+      } else if (compare === 'yoy') {
+        pctCell = chgBadge(m.a, m.y);
+      }
+
+      const bg = i % 2 === 0 ? '' : 'background:#FAFAF8';
+      return `<tr style="${bg}">
+        <td>${m.label}</td>
+        <td><span class="val-actual">${actual}</span></td>
+        <td>${compare === 'goal' ? '<span class="val-goal">' + goalD + (m.rate && goalD !== '—' ? '%' : '') + '</span>' : ''}</td>
+        <td>${pctCell}</td>
+      </tr>`;
+    }).join('');
+
+    const totSQL = act.sql;
+    const totSAL = act.sal;
+
+    return `<div class="div-card">
+      <div class="div-card-head">
+        <span class="div-card-name">${div}</span>
+        <span class="div-card-totals">${totSQL} SQL · ${totSAL} SAL</span>
+      </div>
+      <table class="div-table">
+        <thead><tr>
+          <th>Metric</th>
+          <th>Actual</th>
+          <th>${compare === 'goal' ? 'Goal' : ''}</th>
+          <th>${compare === 'goal' ? '% Goal' : compare === 'mom' ? 'MoM' : 'YoY'}</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   RENDER — YoY GRID
+   ========================================================= */
+function renderYoY(src) {
+  return DIVS.map(div => {
+    const keys = ['sql','sal','pres','deals','mgp'];
+    const labels = ['SQL','SAL','Presentation','Deals','MGP'];
+    const rows = keys.map((k, i) => {
+      let v26=0, v25=0;
+      MONTHS.forEach(m => { v26 += (A26[m]?.[div]?.[src]?.[k] || 0); v25 += (A25[m]?.[div]?.[src]?.[k] || 0); });
+      const chg = v25 > 0 ? Math.round((v26-v25)/v25*100) : null;
+      const cls = chg !== null ? (chg >= 0 ? 'chg-pos' : 'chg-neg') : 'chg-neu';
+      const sym = chg !== null ? (chg >= 0 ? '↑' : '↓') : '';
+      const d25 = k === 'mgp' ? fmtMGP(v25) : v25;
+      const d26 = k === 'mgp' ? fmtMGP(v26) : v26;
+      return `<div class="yoy-row">
+        <span class="yoy-key">${labels[i]}</span>
+        <div class="yoy-vals">
+          <span class="yoy-nums">${d25} → ${d26}</span>
+          <span class="${cls}">${chg !== null ? sym + Math.abs(chg) + '%' : '—'}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="yoy-card"><div class="yoy-div-name">${div}</div>${rows}</div>`;
+  }).join('');
+}
+
+/* =========================================================
+   MAIN RENDER
+   ========================================================= */
+function render() {
+  const period  = document.getElementById('selPeriod').value;
+  const compare = document.getElementById('selCompare').value;
+  const src     = curSource;
+  const months  = getMonths(period);
+
+  document.getElementById('kpiStrip').innerHTML = renderKPI(months, src, compare);
+  document.getElementById('divGrid').innerHTML  = renderDivCards(months, src, compare);
+
+  const yoySection = document.getElementById('yoySection');
+  if (compare === 'yoy') {
+    yoySection.style.display = 'block';
+    document.getElementById('yoyGrid').innerHTML = renderYoY(src);
+  } else {
+    yoySection.style.display = 'none';
+  }
+}
+
+function setSource(s) {
+  curSource = s;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+  const map = { Inbound: 'btnIB', SDR: 'btnSDR', Combined: 'btnComb' };
+  document.getElementById(map[s]).classList.add('active');
+  render();
+}
+
+/* =========================================================
+   FILE UPLOAD — drop CSV or JSON to refresh A26 data
+   ========================================================= */
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.add('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = ev.target.result;
+    const status = document.getElementById('uploadStatus');
+    try {
+      if (file.name.endsWith('.json')) {
+        const parsed = JSON.parse(text);
+        if (parsed.actuals_2026) { A26 = parsed.actuals_2026; }
+        else { A26 = parsed; }
+        status.textContent = '✓ Data loaded from ' + file.name;
+        status.className = 'upload-status';
+        render();
+      } else {
+        status.textContent = 'CSV auto-processing coming soon — use JSON export for now.';
+        status.className = 'upload-status upload-error';
+      }
+    } catch(err) {
+      status.textContent = 'Error parsing file: ' + err.message;
+      status.className = 'upload-status upload-error';
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.getElementById('footerTimestamp').textContent =
+  'COPYRIGHT © POWER DIGITAL · LAST UPDATED ' +
+  new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+
+render();
+</script>
+</body>
+</html>
