@@ -462,6 +462,7 @@ select:focus { border-color: var(--pdm-purple); }
         <option value="4">April 2026</option>
       <option value="5" selected>May 2026</option>
         <option value="Q1">Q1 (Jan – Mar)</option>
+        <option value="Q2">Q2 (Apr – May)</option>
         <option value="YTD">YTD (Jan – May)</option>
       </select>
     </div>
@@ -547,7 +548,8 @@ let curSource = 'Inbound';
    ========================================================= */
 function getMonths(period) {
   if (period === 'Q1')  return ['1','2','3'];
-  if (period === 'YTD') return ['1','2','3','4'];
+  if (period === 'Q2')  return ['4','5'];
+  if (period === 'YTD') return ['1','2','3','4','5'];
   return [period];
 }
 function getPrevMonth(period) {
@@ -637,7 +639,7 @@ function renderKPI(months, src, compare) {
 
   const period = document.getElementById('selPeriod').value;
   let prevMonthAct = null;
-  if (!['Q1','YTD'].includes(period) && compare === 'mom') {
+  if (!['Q1','Q2','YTD'].includes(period) && compare === 'mom') {
     const pm = getPrevMonth(period);
     if (pm) {
       prevMonthAct = {sql:0,sal:0,pres:0,deals:0,mgp:0};
@@ -701,7 +703,7 @@ function renderDivCards(months, src, compare) {
     const y25  = sumPeriod(A25, months, div, src);
 
     let prevAct = null;
-    if (!['Q1','YTD'].includes(period) && compare === 'mom') {
+    if (!['Q1','Q2','YTD'].includes(period) && compare === 'mom') {
       const pm = getPrevMonth(period);
       if (pm) prevAct = sumPeriod(A26, [pm], div, src);
     }
