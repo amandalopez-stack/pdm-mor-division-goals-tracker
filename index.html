@@ -679,7 +679,7 @@ function renderKPI(months, src, compare) {
       if (p !== null) badge = `<span class="kpi-badge ${p >= 0 ? 'badge-pos' : 'badge-neg'}">${p >= 0 ? '↑' : '↓'}${Math.abs(p)}% YoY</span>`;
     }
 
-    const goalDisp = k.goal ? (k.money ? ' / ' + fmtMGP(k.goal) : ' / ' + k.goal) : '';
+    const goalDisp = k.goal ? (k.money ? ' / ' + fmtMGP(k.goal) : k.isRate ? ' / ' + k.goal + '%' : ' / ' + Math.round(k.goal)) : '';
 
     return `<div class="kpi-box">
       <div class="kpi-label">${k.label}</div>
@@ -721,7 +721,7 @@ function renderDivCards(months, src, compare) {
 
     const rows = metrics.map((m, i) => {
       const actual = m.money ? fmtMGP(m.a) : m.rate ? fmtPct(m.a) : fmtNum(m.a);
-      const goalD  = m.g != null ? (m.money ? fmtMGP(m.g) : m.g) : '—';
+      const goalD  = m.g != null ? (m.money ? fmtMGP(m.g) : m.rate ? m.g : Math.round(m.g)) : '—';
 
       let pctCell = '';
       if (compare === 'goal' && m.g != null && m.g !== 0) {
